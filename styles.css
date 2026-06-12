@@ -814,7 +814,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .form-group input:focus {
     outline: none;
-    border-color: var(--accent-color);
+    border-color: var(--accent-yellow);
 }
 
 #btn-generate-pix {
@@ -822,7 +822,7 @@ h1, h2, h3, h4, h5, h6 {
     margin-top: 10px;
     font-size: 18px;
     padding: 15px;
-    background: var(--accent-color);
+    background: var(--accent-yellow);
     color: #fff;
     border: none;
     border-radius: 50px;
@@ -942,7 +942,7 @@ h1, h2, h3, h4, h5, h6 {
     height: 30px;
     border: 3px solid rgba(255, 183, 3, 0.3);
     border-radius: 50%;
-    border-top-color: var(--accent-color);
+    border-top-color: var(--accent-yellow);
     animation: spin 1s ease-in-out infinite;
 }
 

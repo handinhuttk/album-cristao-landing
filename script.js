@@ -204,7 +204,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             // Exibir dados do PIX
-            pixQrCode.src = 'data:image/png;base64,' + data.transaction.qr_code_base64;
+            // O NexusPag já retorna o prefixo data:image/png;base64, no qr_code_base64
+            pixQrCode.src = data.transaction.qr_code_base64;
             pixCopiaCola.value = data.transaction.pix_copia_cola;
 
             // Mudar para a tela 2
@@ -229,12 +230,22 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Copy PIX Action
-    btnCopyPix.addEventListener('click', () => {
-        pixCopiaCola.select();
-        document.execCommand('copy');
+    btnCopyPix.addEventListener('click', async () => {
+        try {
+            await navigator.clipboard.writeText(pixCopiaCola.value);
+            showCopySuccess();
+        } catch (err) {
+            // Fallback para navegadores antigos/safari
+            pixCopiaCola.select();
+            document.execCommand('copy');
+            showCopySuccess();
+        }
+    });
+
+    function showCopySuccess() {
         copySuccessMsg.classList.remove('hidden');
         setTimeout(() => copySuccessMsg.classList.add('hidden'), 3000);
-    });
+    }
 
     // Polling function to check status
     function startPolling(transactionId, customerEmail) {
