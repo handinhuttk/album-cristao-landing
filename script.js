@@ -30,7 +30,7 @@ function sendKwaiEvent(eventName, value = null, currency = null, extraProperties
         clickid: kwaiClickId,
         event_name: eventName,
         testFlag: false,
-        trackFlag: false, // Pode mudar para true quando for testar na aba de 'Test Events' do Kwai
+        trackFlag: false, // Desativado após o teste
         is_attributed: 1,
         mmpcode: "PL",
         pixelSdkVersion: "9.9.9",
