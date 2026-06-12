@@ -275,7 +275,7 @@
                 <div class="price-cash">R$ 29,90</div>
                 <div class="price-cash-label">à vista</div>
                 
-                <a href="https://pay.hotmart.com/D105931460H?checkoutMode=10&bid=1779422336186" target="_blank" rel="noopener noreferrer" class="btn-buy">QUERO COMEÇAR MINHA COLEÇÃO</a>
+                <a href="#" class="btn-buy checkout-trigger">QUERO COMEÇAR MINHA COLEÇÃO</a>
                 
                 <div class="security-badges">
                     <span>📥 Download imediato</span>
@@ -325,7 +325,7 @@
             <h2>📖 Mais do que figurinhas…</h2>
             <p>…uma forma divertida de fazer crianças<br>se apaixonarem pela Bíblia.</p>
             <p>As figurinhas completam o álbum,<br>a Palavra de Deus completa o coração.</p>
-            <a href="#preco" class="btn-buy-small">QUERO COMEÇAR MINHA COLEÇÃO</a>
+            <a href="#" class="btn-buy-small checkout-trigger">QUERO COMEÇAR MINHA COLEÇÃO</a>
         </div>
     </section>
 
@@ -342,6 +342,64 @@
             <p class="copyright">BíbliaTeca Mapeada © 2023 – Todos os direitos reservados</p>
         </div>
     </footer>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-header">
+                <h2>Finalizar Pedido</h2>
+                <p>Insira seus dados para receber o Álbum</p>
+            </div>
+            
+            <div id="checkout-step-1" class="checkout-step">
+                <form id="checkout-form">
+                    <div class="form-group">
+                        <label for="customer-name">Seu Nome Completo</label>
+                        <input type="text" id="customer-name" placeholder="Ex: João da Silva" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customer-email">Seu E-mail (Onde receberá o material)</label>
+                        <input type="email" id="customer-email" placeholder="Ex: joao@gmail.com" required>
+                    </div>
+                    <button type="submit" class="btn-buy" id="btn-generate-pix">
+                        Gerar PIX (R$ 29,90)
+                    </button>
+                    <div class="secure-checkout">
+                        <span class="icon">🔒</span> Pagamento Seguro
+                    </div>
+                </form>
+            </div>
+
+            <div id="checkout-step-2" class="checkout-step hidden">
+                <div class="pix-info">
+                    <p class="pix-title">Pague via PIX para liberar agora!</p>
+                    <div class="qr-code-container">
+                        <img id="pix-qr-code" src="" alt="QR Code PIX">
+                    </div>
+                    <p class="pix-instructions">Ou copie o código abaixo e cole no aplicativo do seu banco:</p>
+                    <div class="pix-copy-container">
+                        <input type="text" id="pix-copia-cola" readonly>
+                        <button id="btn-copy-pix">COPIAR</button>
+                    </div>
+                    <p id="copy-success-msg" class="hidden success-msg">Copiado com sucesso!</p>
+                    <div class="payment-waiting">
+                        <div class="spinner"></div>
+                        <p>Aguardando confirmação do pagamento...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="checkout-step-3" class="checkout-step hidden">
+                <div class="success-screen">
+                    <div class="success-icon">✅</div>
+                    <h2>Pagamento Confirmado!</h2>
+                    <p>O seu Álbum da Bíblia acabou de ser enviado para o seu e-mail!</p>
+                    <p class="email-sent-to" id="success-email-display"></p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>

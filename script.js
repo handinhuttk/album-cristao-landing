@@ -131,12 +131,137 @@ document.addEventListener("DOMContentLoaded", () => {
     // 4. Listen to Buy Buttons for Checkout Event
     const buyButtons = document.querySelectorAll('.btn-buy, .btn-buy-small');
     buyButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (e) => {
+            // A Kwai Event API agora será disparada apenas QUANDO o PIX for gerado (dentro do fluxo do Modal)
+            // Mantemos esse listener apenas para caso existam outros botões que não abrem modal (mas todos abrirão)
+        });
+    });
+
+    // ==========================================
+    // Checkout Modal Logic
+    // ==========================================
+    const modal = document.getElementById('checkout-modal');
+    const checkoutTriggers = document.querySelectorAll('.checkout-trigger');
+    const closeModal = document.querySelector('.close-modal');
+    
+    const step1 = document.getElementById('checkout-step-1');
+    const step2 = document.getElementById('checkout-step-2');
+    const step3 = document.getElementById('checkout-step-3');
+
+    const checkoutForm = document.getElementById('checkout-form');
+    const btnGeneratePix = document.getElementById('btn-generate-pix');
+    const pixQrCode = document.getElementById('pix-qr-code');
+    const pixCopiaCola = document.getElementById('pix-copia-cola');
+    const btnCopyPix = document.getElementById('btn-copy-pix');
+    const copySuccessMsg = document.getElementById('copy-success-msg');
+    const successEmailDisplay = document.getElementById('success-email-display');
+
+    let pollingInterval = null;
+
+    // Open Modal
+    checkoutTriggers.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            modal.classList.remove('hidden');
+        });
+    });
+
+    // Close Modal
+    function hideModal() {
+        modal.classList.add('hidden');
+        if (pollingInterval) clearInterval(pollingInterval);
+    }
+
+    closeModal.addEventListener('click', hideModal);
+
+    // Fechar ao clicar fora do modal
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) hideModal();
+    });
+
+    // Handle Form Submit (Generate PIX)
+    checkoutForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const name = document.getElementById('customer-name').value;
+        const email = document.getElementById('customer-email').value;
+
+        btnGeneratePix.disabled = true;
+        btnGeneratePix.innerText = 'Gerando PIX...';
+
+        try {
+            // Chama a nossa própria API Serverless na Vercel
+            const response = await fetch('/api/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.error || 'Erro ao gerar o PIX');
+            }
+
+            // Exibir dados do PIX
+            pixQrCode.src = 'data:image/png;base64,' + data.transaction.qr_code_base64;
+            pixCopiaCola.value = data.transaction.pix_copia_cola;
+
+            // Mudar para a tela 2
+            step1.classList.add('hidden');
+            step2.classList.remove('hidden');
+
+            // Disparar o rastreamento do Kwai de que o checkout foi iniciado
             sendKwaiEvent("EVENT_INITIATED_CHECKOUT", 29.90, "BRL", {
                 content_id: "album_cristao",
                 content_type: "product",
                 content_name: "Álbum da Bíblia",
             });
-        });
+
+            // Iniciar o Polling para checar se foi pago
+            startPolling(data.transaction.id, email);
+
+        } catch (error) {
+            alert('Falha ao gerar o PIX. Tente novamente mais tarde.\nDetalhes: ' + error.message);
+            btnGeneratePix.disabled = false;
+            btnGeneratePix.innerText = 'Gerar PIX (R$ 29,90)';
+        }
     });
+
+    // Copy PIX Action
+    btnCopyPix.addEventListener('click', () => {
+        pixCopiaCola.select();
+        document.execCommand('copy');
+        copySuccessMsg.classList.remove('hidden');
+        setTimeout(() => copySuccessMsg.classList.add('hidden'), 3000);
+    });
+
+    // Polling function to check status
+    function startPolling(transactionId, customerEmail) {
+        if (pollingInterval) clearInterval(pollingInterval);
+
+        pollingInterval = setInterval(async () => {
+            try {
+                const res = await fetch(`/api/status?id=${transactionId}`);
+                const data = await res.json();
+
+                if (data.status === 'paid') {
+                    clearInterval(pollingInterval);
+                    
+                    // Mostrar Tela de Sucesso
+                    step2.classList.add('hidden');
+                    successEmailDisplay.innerText = customerEmail;
+                    step3.classList.remove('hidden');
+
+                    // Avisar o Kwai que a compra foi concluída com sucesso!
+                    sendKwaiEvent("EVENT_PURCHASE", 29.90, "BRL", {
+                        content_id: "album_cristao",
+                        content_type: "product"
+                    });
+                }
+            } catch (err) {
+                console.error("Erro ao checar status do PIX:", err);
+            }
+        }, 5000); // Check every 5 seconds
+    }
 });
