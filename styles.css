@@ -921,6 +921,10 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: 15px;
 }
 
+.success-msg.hidden {
+    display: none;
+}
+
 .payment-waiting {
     margin-top: 25px;
     padding-top: 20px;
